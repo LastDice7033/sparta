@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 추억앨범</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>@import url(https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap);*{font-family:'Gowun Dodum',sans-serif}.mytitle{height:250px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;background-image:url('https://images.unsplash.com/photo-1710945464442-da118a917a4b?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');background-position:center;background-size:cover}.mytitle>button{width:150px;height:50px;background-color:transparent;color:#fff;border:1px solid #fff;border-radius:5px;margin-top:20px}.mycards{width:1200px;margin:30px auto 0}.mypostingbox{width:500px;margin:30px auto 0;padding:20px;box-shadow:0 0 3px 0 #00f;border-radius:5px}.mybtn{display:flex;flex-direction:row;align-items:center;justify-content:center}.mybtn>button{margin-right:5px}</style>
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+const firebaseConfig = { /* Note: 이 정보는 과금 계정과 연결되어있어, 비공개 처리되었습니다. */ };
+const db = getFirestore(initializeApp(firebaseConfig));
+
+$("#postingbtn").click(async function () {
+    await addDoc(collection(db, "albums"), {
+        'image': $('#image').val(),
+        'title': $('#title').val(),
+        'content': $('#content').val(),
+        'date': $('#date').val()
+    });
+    window.location.reload();
+})
+$("#savebtn").click(async function () { $('#postingbox').toggle(); })
+
+fetch("http://spartacodingclub.shop/sparta_api/seoulair").then(res => res.json()).then(data => {
+    $('#msg').text(data['RealtimeCityAir']['row'][2]['IDEX_NM'])
+})
+
+let docs = await getDocs(collection(db, "albums"));
+docs.forEach((doc) => {
+    let row = doc.data();
+    $('#card').append(`            
+    <div class="col">
+        <div class="card h-100">
+            <img src="${row['image']}"
+                class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">${row['title']}</h5>
+                <p class="card-text">${row['content']}</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-body-secondary">${row['date']}</small>
+            </div>
+        </div>
+    </div>`);
+});
+    </script>
+</head>
+
+<body>
+    <div class="mytitle">
+        <h1>나만의 추억앨범</h1>
+        <p>현재 서울의 미세먼지 : <span id="msg">좋..나?</span></p>
+        <button id="savebtn">추억 저장하기</button>
+    </div>
+    <div class="mypostingbox" id="postingbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="image" placeholder="앨범 이미지">
+            <label for="floatingInput">앨범 이미지</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="title" placeholder="앨범 제목">
+            <label for="floatingInput">앨범 제목</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="content" placeholder="앨범 내용">
+            <label for="floatingInput">앨범 내용</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="date" placeholder="앨범 날짜">
+            <label for="floatingInput">앨범 날짜</label>
+        </div>
+        <div class="mybtn">
+            <button id="postingbtn" type="button" class="btn btn-primary">기록하기</button>
+            <button type="button" class="btn btn-outline-primary">닫기</button>
+        </div>
+    </div>
+    <div class="mycards">
+        <div id="card" class="row row-cols-1 row-cols-md-4 g-4">
+            
+        </div>
+    </div>
+</body>
+
+</html>
